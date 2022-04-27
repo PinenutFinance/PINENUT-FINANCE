@@ -44,7 +44,7 @@ contract FilLoan is Ownable {
         delete _amounts[account];
     }
 
-    function lend(address account, uint256 amount) external {
+    function lend(address account, uint256 amount) external onlyOwner {
         require(_whiteList.contains(account), "Not In White List");
         require(amount <= _amounts[account], "Lend Balance Not Enough");
 
