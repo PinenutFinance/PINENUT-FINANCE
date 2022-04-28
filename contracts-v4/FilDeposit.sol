@@ -49,11 +49,11 @@ contract FilDeposit is Ownable, Pausable, AccessControl {
     event LendToMiner(uint256 amount, address target, uint256 balance);
     event RepaymentByMiner(uint256 amount, uint256 balance);
 
-    constructor(address depositToken, address lendAdminRole) {
-        require(Address.isContract(depositToken), "Token Invalid");
-        DEPOSIT_TOKEN = ERC20(depositToken);
+    constructor(address token) {
+        require(Address.isContract(token), "Token Invalid");
+        DEPOSIT_TOKEN = ERC20(token);
 
-        _setupRole(LEND_ADMIN_ROLE, lendAdminRole);
+        _setupRole(LEND_ADMIN_ROLE, _msgSender());
 
         _setRoleAdmin(LEND_ROLE, LEND_ADMIN_ROLE);
         _setRoleAdmin(REPAYMENT_ROLE, LEND_ADMIN_ROLE);
