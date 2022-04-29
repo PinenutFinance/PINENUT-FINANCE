@@ -35,7 +35,7 @@ contract FilDeposit is Ownable, Pausable, AccessControl {
         uint256 status;
     }
 
-    ERC20 public DEPOSIT_TOKEN;
+    ERC20 public depositToken;
 
     uint256 public totalRegular;
     uint256 public totalCurrent;
@@ -49,9 +49,9 @@ contract FilDeposit is Ownable, Pausable, AccessControl {
     event LendToMiner(uint256 amount, address target, uint256 balance);
     event RepaymentByMiner(uint256 amount, uint256 balance);
 
-    constructor(address depositToken, address lendAdminRole) {
-        require(Address.isContract(depositToken), "Token Invalid");
-        DEPOSIT_TOKEN = ERC20(depositToken);
+    constructor(address _depositToken, address lendAdminRole) {
+        require(Address.isContract(_depositToken), "Token Invalid");
+        depositToken = ERC20(_depositToken);
 
         _setupRole(LEND_ADMIN_ROLE, lendAdminRole);
 
@@ -64,7 +64,7 @@ contract FilDeposit is Ownable, Pausable, AccessControl {
     ) external whenNotPaused {
         require(amount <= _depositLimits[depositType], "Amount Limit");
         require(amount > 0, "Amount Invalid");
-        bool success = DEPOSIT_TOKEN.transferFrom(
+        bool success = depositToken.transferFrom(
             msg.sender, address(this), amount
         );
         require(success, "Transfer Invalid");
@@ -95,7 +95,7 @@ contract FilDeposit is Ownable, Pausable, AccessControl {
             _deposits[msg.sender] = _deposits[msg.sender] - amount;
             totalCurrent = totalCurrent - amount;
 
-            bool success = DEPOSIT_TOKEN.transfer(msg.sender, amount);
+            bool success = depositToken.transfer(msg.sender, amount);
             require(success, "Transfer Invalid");
         } else {
             DepositDetail memory detail = _depositList[index];
@@ -115,31 +115,31 @@ contract FilDeposit is Ownable, Pausable, AccessControl {
             detail.amount = 0;
 
             totalRegular = totalRegular - amount;
-            bool success = DEPOSIT_TOKEN.transfer(msg.sender, amount);
+            bool success = depositToken.transfer(msg.sender, amount);
             require(success, "Transfer Invalid");
         }
 
-        emit Withdraw(index, amount, DEPOSIT_TOKEN.balanceOf(address(this)));
+        emit Withdraw(index, amount, depositToken.balanceOf(address(this)));
     }
 
     function lendToMiner(
         uint256 amount, address target
     ) external whenNotPaused onlyRole(LEND_ROLE) {
-        require(DEPOSIT_TOKEN.balanceOf(address(this)) >= amount, "Not Enough");
-        bool success = DEPOSIT_TOKEN.transfer(target, amount);
+        require(depositToken.balanceOf(address(this)) >= amount, "Not Enough");
+        bool success = depositToken.transfer(target, amount);
         require(success, "Transfer Invalid");
 
-        emit LendToMiner(amount, target, DEPOSIT_TOKEN.balanceOf(address(this)));
+        emit LendToMiner(amount, target, depositToken.balanceOf(address(this)));
     }
 
     function repaymentByMiner(uint256 amount) external onlyRole(REPAYMENT_ROLE) {
-        bool success = DEPOSIT_TOKEN.transferFrom(msg.sender, address(this), amount);
+        bool success = depositToken.transferFrom(msg.sender, address(this), amount);
         require(success, "Transfer Invalid");
 
-        emit RepaymentByMiner(amount, DEPOSIT_TOKEN.balanceOf(address(this)));
+        emit RepaymentByMiner(amount, depositToken.balanceOf(address(this)));
     }
 
-    function gettotalRegular() external view returns (uint256 total, uint256 withdrawed) {
+    function getTotalRegular() external view returns (uint256 total, uint256 withdrawed) {
         for (uint256 i = 0; i < _depositList.length; i++) {
             total = total + _depositList[i].amount;
             if (_depositList[i].status == 0) continue;
