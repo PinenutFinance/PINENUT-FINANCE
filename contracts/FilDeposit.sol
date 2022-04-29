@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 
 /**·
-* @title For FilCoin Deposit Cliam KiKi
+* @title Deposit Filcoin
 *
 * Version v1.1.0
 *
@@ -122,7 +122,9 @@ contract FilDeposit is Ownable, Pausable, AccessControl {
         emit Withdraw(index, amount, DEPOSIT_TOKEN.balanceOf(address(this)));
     }
 
-    function lendToMiner(uint256 amount, address target) external onlyRole(LEND_ROLE) {
+    function lendToMiner(
+        uint256 amount, address target
+    ) external whenNotPaused onlyRole(LEND_ROLE) {
         require(DEPOSIT_TOKEN.balanceOf(address(this)) >= amount, "Not Enough");
         bool success = DEPOSIT_TOKEN.transfer(target, amount);
         require(success, "Transfer Invalid");

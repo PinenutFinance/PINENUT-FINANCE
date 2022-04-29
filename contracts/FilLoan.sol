@@ -52,7 +52,7 @@ contract FilLoan is Ownable {
         depositPool.lendToMiner(amount, account);
     }
 
-    function repayment(uint256 amount) external onlyOwner {
+    function repayment(uint256 amount) external {
         filToken.approve(address(depositPool), amount);
         depositPool.repaymentByMiner(amount);
     }

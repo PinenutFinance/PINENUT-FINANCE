@@ -55,7 +55,7 @@ contract MultiSignature is Ownable, AccessControl {
         _signers.remove(account);
     }
 
-    function applyAddSignatures(
+    function applyAddSigner(
         address account, bytes32 salt
     ) external onlyRole(SIGNER_ROLE) {
         bytes32 sign = keccak256(abi.encode(address(this), account, salt));
