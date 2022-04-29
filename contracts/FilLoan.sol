@@ -25,6 +25,11 @@ contract FilLoan is Ownable {
     
     mapping (address => uint256) public _amounts;
 
+    event AddWhiteList(address account, uint256 amount);
+    event RemoveWhiteList(address account);
+    event Lend(address account, uint256 amount, uint256 balance);
+    event Repayment(uint256 amount, uint256 poolBalance);
+
     constructor(address _depositPool, address _filToken) {
         require(Address.isContract(_depositPool), "Pool Invalid");
         depositPool = FilDeposit(_depositPool);
@@ -37,11 +42,15 @@ contract FilLoan is Ownable {
         
         if (!_whiteList.contains(account)) _whiteList.add(account);
         _amounts[account] = amount;
+
+        emit AddWhiteList(account, amount);
     }
 
     function removeWhiteList(address account) external onlyOwner {
         _whiteList.remove(account);
         delete _amounts[account];
+
+        emit RemoveWhiteList(account);
     }
 
     function lend(address account, uint256 amount) external onlyOwner {
@@ -50,10 +59,14 @@ contract FilLoan is Ownable {
 
         _amounts[account] = _amounts[account] - amount;
         depositPool.lendToMiner(amount, account);
+
+        emit Lend(account, amount, _amounts[account]);
     }
 
     function repayment(uint256 amount) external {
         filToken.approve(address(depositPool), amount);
         depositPool.repaymentByMiner(amount);
+
+        emit Repayment(amount, filToken.balanceOf(address(depositPool)));
     }
 }
