@@ -145,8 +145,6 @@ contract FilDeposit is Ownable, Pausable, AccessControl {
             if (_depositList[i].status == 0) continue;
             withdrawed = withdrawed + _depositList[i].amount;
         }
-
-        total = total + totalRegular;
     }
 
     function getDepositLimit(uint256 depositType) external view returns (uint256) {
