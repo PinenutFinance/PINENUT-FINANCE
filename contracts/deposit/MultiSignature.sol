@@ -69,6 +69,7 @@ contract MultiSignature is AccessControl {
     //lend
 
     function applyLend(address borrower, uint amount, uint expireAt, bytes32 salt) external {
+        require(filDeposit.whiteListContains(borrower), "borrower not in white list");
         bytes32 hash = keccak256(abi.encode(_msgSender(), borrower, amount, block.timestamp, expireAt, salt));
         require(!transactions[hash], "apply already request");
         transactions[hash] = true;

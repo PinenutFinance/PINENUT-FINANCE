@@ -146,6 +146,11 @@ contract FilDeposit is SafeOwnable, Pausable {
     return _whiteList.values();
   }
 
+   function whiteListContains(address account) view external returns(bool) {
+    return _whiteList.contains(account);
+  }
+
+
 
   function togglePause() external onlyOwner {
         if (paused()) {
