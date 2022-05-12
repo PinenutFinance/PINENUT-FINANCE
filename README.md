@@ -1,15 +1,6 @@
-# Basic Sample Hardhat Project
+## Import Openzeppelin
+#### https://github.com/OpenZeppelin/openzeppelin-contracts
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
-
-Try running some of the following tasks:
-
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
-```
+## Filcoin Token Address:
+#### Heco: 0xae3a768f9ab104c69a7cd6041fe16ffa235d1810
+#### BSC: 0x0d8ce2a99bb6e3b7db580ed848240e4a0f9ae153
