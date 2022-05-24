@@ -65,8 +65,6 @@ contract FilDeposit is SafeOwnable, Pausable {
   }
   
   function fixedDeposit(uint amount, uint term) external whenNotPaused {
-    require(amount >= 0, "invalid amount");
-    require(term >= 0, "invalid term");
     require(amount + fixedTotalAmount <= fixedDepositLimit, "exceed fixedDeposit limit");
     depositToken.safeTransferFrom(address(msg.sender), address(this), amount);
     uint index = _fixedDepositList.length;
@@ -83,7 +81,6 @@ contract FilDeposit is SafeOwnable, Pausable {
   }
 
   function demandDeposit(uint amount) external whenNotPaused{
-    require(amount >= 0, "invalid amount");
     require(amount + demandTotalAmount <= demandDepositLimit, "exceed demandDeposit limit");
     depositToken.safeTransferFrom(address(msg.sender), address(this), amount);
     _demandDeposit[msg.sender] += amount;
@@ -92,20 +89,19 @@ contract FilDeposit is SafeOwnable, Pausable {
   }
 
   function fixedWithdraw(uint index) external whenNotPaused {
-    require(index >= 0 && index < _fixedDepositList.length, "invalid index");
+    require(index < _fixedDepositList.length, "invalid index");
     FixedDepositDetail storage detail = _fixedDepositList[index];
     require(detail.user == msg.sender, "only owner");
     require(detail.status == 0, "already withdraw");
     require(block.timestamp >= detail.term + detail.requestAt,"cannot withdraw right now");
     uint amount = detail.amount;
     fixedTotalAmount -= amount;
-    depositToken.safeTransfer(msg.sender, amount);
     detail.status = 1;
+    depositToken.safeTransfer(msg.sender, amount);
     emit FixedWithdraw(msg.sender, amount, block.timestamp, index);
   }
 
   function demandWithdraw(uint amount) external whenNotPaused {
-    require(amount >= 0, "invalid amount");
     require(_demandDeposit[msg.sender] >= amount, "balance not enough");
     _demandDeposit[msg.sender] -= amount;
     demandTotalAmount -= amount;
@@ -114,7 +110,6 @@ contract FilDeposit is SafeOwnable, Pausable {
   }
 
   function lend(address borrower, uint amount) external whenNotPaused onlyOwner {
-    require(amount >= 0, "invalid amount");
     require(borrower != address(0), "illegal borrower");
     require(_whiteList.contains(borrower), "borrower not in white list");
     require(depositToken.balanceOf(address(this)) >= amount, "balance not enough");
@@ -124,20 +119,17 @@ contract FilDeposit is SafeOwnable, Pausable {
   }
 
   function repay(uint amount) external {
-    require(amount >= 0, "invalid amount");
     depositToken.safeTransferFrom(address(msg.sender), address(this), amount);
     lendAmount -= int(amount);
     emit Repay(msg.sender, amount, block.timestamp);
   }
 
   function setFixedDepositLimit(uint newLimitAmount) external onlyOwner {
-      require(newLimitAmount >= 0, "invalid limit amount");
       emit ChangeFixedDepositLimit(fixedDepositLimit, newLimitAmount);
       fixedDepositLimit = newLimitAmount;
   }
 
   function setDemandDepositLimit(uint newLimitAmount) external onlyOwner {
-      require(newLimitAmount >= 0, "invalid limit amount");
       emit ChangeDemandDepositLimit(demandDepositLimit, newLimitAmount);
       demandDepositLimit = newLimitAmount;
   }
@@ -146,10 +138,9 @@ contract FilDeposit is SafeOwnable, Pausable {
     return _whiteList.values();
   }
 
-   function whiteListContains(address account) view external returns(bool) {
+  function whiteListContains(address account) view external returns(bool) {
     return _whiteList.contains(account);
   }
-
 
 
   function togglePause() external onlyOwner {

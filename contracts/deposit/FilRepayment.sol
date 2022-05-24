@@ -27,7 +27,6 @@ contract FilRepayment is SafeOwnable {
   }
 
   function repay(uint amount) external onlyOwner {
-    require(amount >= 0, "invalid amount");
     filToken.approve(address(filDeposit), amount);
     filDeposit.repay(amount);
   }
