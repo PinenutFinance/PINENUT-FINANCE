@@ -25,6 +25,7 @@ contract FilDeposit is SafeOwnable, Pausable {
     }
 
   IERC20 public depositToken;
+  address public filRepayment;
   uint public fixedDepositLimit;
   uint public demandDepositLimit;
   uint public fixedTotalAmount;
@@ -50,6 +51,11 @@ contract FilDeposit is SafeOwnable, Pausable {
     fixedDepositLimit = _fixedDepositLimit;
     demandDepositLimit = _demandDepositLimit;
     depositToken = _depositToken;
+  }
+
+  function setFilRepayment(address _filRepayment) external onlyOwner {
+    require(filRepayment == address(0), "already be set");
+    filRepayment = _filRepayment;
   }
 
   function addWhiteList(address account) external onlyOwner {
@@ -119,7 +125,7 @@ contract FilDeposit is SafeOwnable, Pausable {
   }
 
   function repay(uint amount) external {
-    depositToken.safeTransferFrom(address(msg.sender), address(this), amount);
+    require(msg.sender == filRepayment,"repay must from filRepayment");
     lendAmount -= int(amount);
     emit Repay(msg.sender, amount, block.timestamp);
   }
